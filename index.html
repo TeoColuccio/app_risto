@@ -1,0 +1,27 @@
+<!doctype html>
+
+<html>
+
+<head>
+</head>
+
+<body>
+  <h1> Ciao </h1>
+  <p>Vai al <a href="/menu">menu</a></p>
+
+  <button id="pippo">Hello</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  
+  var socket = io.connect('http://localhost:3000');
+  var btn_pippo = document.getElementById('pippo');
+  btn_pippo.addEventListener('click', function () {
+    socket.emit('pippo');
+  });
+
+  console.log('hello');
+  </script>
+</body>
+
+</html>
