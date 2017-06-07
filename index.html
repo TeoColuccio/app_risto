@@ -2,50 +2,21 @@
 
 <html>
 
-<head>
+<head> 
 </head>
 
 <body>
-  <h1> Menu' </h1>
-  <input type="number" id="x" min="0" max ="10">
-  <input type="number" id="y" min="0" max ="10">
+  <h1> Categorie </h1>
   
-  <button id="btn-distanza">Calcola la distanza dall'origine</button>
-  <p id="distanza"></p>
-
-  <h1>Categorie</h1>
   <ul id="categorie">
   </ul>
 
-
   <script src="/socket.io/socket.io.js"></script>
-  
   <script>
   
   var socket = io.connect('http://192.168.1.5:3000');
-  var btn = document.getElementById('btn-distanza');
-  btn.addEventListener('click', function () {
-    var x_input = document.getElementById('x');
-    var y_input = document.getElementById('y');
-    
-    console.log(x_input.value);
-    console.log(y_input.value);
 
-    socket.emit('distanza', { x: x_input.value, y: y_input.value });
-
-    var li = document.createElement('li');
-    li.textContent = x_input.value + "-----" + y_input.value;
-    document.getElementById('categorie').appendChild(li);
-  });
-
-  socket.on('distanza_result', function (data) {
-    var p = document.getElementById('distanza');
-    p.textContent = data.list;
-    console.log(data);
-  });
-
-
-  socket.on('lista_coords', function (data) {
+  socket.on('lista_categorie', function (data) {
     console.log(data);
     var ul = document.getElementById('categorie');
     for (var i = 0; i < 10; i++) {

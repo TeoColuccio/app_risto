@@ -3,9 +3,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var coords = [ { x: 1, y: 2}, 
-  {x: 7, y: 7}
-];
+var categorie = [ "antipasti", "primi piatti", "secondi piatti", "dolci", "bibite"];
 
 server.listen(3000);
 
@@ -16,16 +14,15 @@ app.get('/', function (req, res) {
 io.on('connection', function (socket) {
   console.log('nuovo utente connesso');
   
-  socket.emit('lista_coords', coords);
+  socket.emit('lista_categorie', categorie);
 
-  socket.on('distanza', function (data) {
+  socket.on('lista_categorie', function (data) {
     console.log(data);
-    var d = Math.sqrt(data.x*data.x + data.y * data.y);
 
     /* Memorizza il dato del db */
     coords.push(data);
-    console.log(coords);
+    console.log(categorie);
 
-    socket.emit('distanza_result', { dist: d});
+    socket.emit('lista_categorie');
   });
 });
