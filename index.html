@@ -19,9 +19,9 @@
   socket.on('lista_categorie', function (data) {
     console.log(data);
     var ul = document.getElementById('categorie');
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < data.length; i++) {
       var li = document.createElement('li');
-      li.textContent = data[i].x + "------" + data[i].y;
+      li.textContent = data[i];
       ul.appendChild(li);
     }
   });

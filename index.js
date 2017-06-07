@@ -20,7 +20,6 @@ io.on('connection', function (socket) {
     console.log(data);
 
     /* Memorizza il dato del db */
-    coords.push(data);
     console.log(categorie);
 
     socket.emit('lista_categorie');
