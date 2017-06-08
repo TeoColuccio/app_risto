@@ -11,17 +11,14 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+
 io.on('connection', function (socket) {
+  socket.emit('lista_categorie', categorie);
   console.log('nuovo utente connesso');
   
-  socket.emit('lista_categorie', categorie);
-
-  socket.on('lista_categorie', function (data) {
-    console.log(data);
-
-    /* Memorizza il dato del db */
-    console.log(categorie);
-
-    socket.emit('lista_categorie');
+  console.log(categorie);
+  socket.on('btn-nuova-categoria', function (data) {
+  console.log('bottone cliccato');
+  categorie.push(data);
   });
 });

@@ -11,13 +11,18 @@
   <ul id="categorie">
   </ul>
   
-  <input type="text"> </input>
+  <input id="nuova_categoria" type="text"> </input>
   <button id="btn-nuova-categoria">Aggiungi la nuova categoria</button>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
   
   var socket = io.connect('http://192.168.1.5:3000');
+  
+  var btn = document.getElementById('btn-nuova-categoria');
+  btn.addEventListener('click', function () {
+    var nuova_categoria = document.getElementById('nuova_categoria');
+  });
 
   socket.on('lista_categorie', function (data) {
     console.log(data);
