@@ -2,15 +2,14 @@
 
 <html>
 
-<head> 
+<head>
 </head>
 
 <body>
     <h1>Piatti</h1>
-    
+
 <p><a href="/">Home</a></p>
-    
-    ID: <input id="id-piatto" type="text">
+
     Categoria: <select id="categoria"></select>
     Piatto: <input type="text" id="piatto">
     <button id="btn-piatto">Aggiungi piatto</button>
@@ -20,89 +19,126 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
+function makeCategorie(categorieDB) {
+  var categorie = {};
+  for (var i = 0; i < categorieDB.length; i++) {
+    categorie[ categorieDB[i]._id ] = categorieDB[i].categoria;
+  }
+  return categorie;
+}
+
+function addCategoria(categorie, categoria) {
+  categorie[categoria._id] = categoria.categoria;
+  return categorie;
+}
+
+function selectCategorie(categorie, container) {
+  container.textContent = '';
+  for (var id in categorie) {
+    if (categorie.hasOwnProperty(id)) {
+      var opt = document.createElement('option');
+      opt.textContent = categorie[id];
+      opt.value = id;
+      container.appendChild(opt);
+    }
+  }
+}
+
+function makePiatti(piattiDB) {
+  var piatti = {};
+  for (var i = 0; i < piattiDB.length; i++) {
+    piatti[ piattiDB[i]._id ] = piattiDB[i];
+  }
+  return piatti;
+}
+
+function addPiatto(piatti, piatto) {
+  piatti[piatto._id] = piatto;
+  return piatti;
+}
+
+function listPiatti(piatti, container) {
+  container.textContent = '';
+
+  var piattiUL = {};
+
+  for (var id in piatti) {
+    if (piatti.hasOwnProperty(id)) {
+      //console.log(piatti[id]);
+      if (!piattiUL.hasOwnProperty(piatti[id].catId)) {
+        piattiUL[piatti[id].catId] = document.createElement('ul');
+        piattiUL[piatti[id].catId].id = piatti[id].catId;
+        var header = document.createElement('h2');
+        header.textContent = categorie[piatti[id].catId];
+        container.appendChild(header);
+        container.appendChild(piattiUL[piatti[id].catId]);
+      }
+    }
+    var li = document.createElement('li');
+    li.textContent = piatti[id].piatto;
+    piattiUL[piatti[id].catId].appendChild(li);
+  }
+}
+
+  </script>
+
+  <script>
   var socket = io.connect('http://localhost:3000');
+  var categorie = {};
+  var piatti = {};
 
   document.addEventListener('DOMContentLoaded', function () {
-    socket.emit('req_piatti');	// piatti e categorie
+    socket.emit('req_categorie');
+
+    socket.on('lista_categorie', function (data) {
+      //console.log(data);
+      categorie = makeCategorie(data);
+      //console.log(categorie);
+      selectCategorie(categorie, document.getElementById('categoria'));
+    });
+
+    socket.emit('req_piatti');
+
+    socket.on('lista_piatti', function (data) {
+      //console.log(data);
+      piatti = makePiatti(data);
+      //console.log(piatti);
+      listPiatti(piatti, document.getElementById('piatti'));
+    });
 
     var btn = document.getElementById('btn-piatto');
     btn.addEventListener('click', function () {
       var nuovo_piatto = document.getElementById('piatto');
       var cat = document.getElementById('categoria');
-      var id_piatto = document.getElementById('id-piatto');
-      
-      console.log(nuovo_piatto.value);
-      console.log(cat.value);
-      console.log(id_piatto.value);
 
-      console.log(cat.value.split(';'));
+      //console.log(cat.value);
+      //console.log(nuovo_piatto.value);
 
-      var temp = cat.value.split(';');
-      var cat_id = temp[0];
-      var categoria = temp[1];
       var piatto = {
-        _id: id_piatto.value,
-        catId: cat_id,
-        categoria: categoria,
+        catId: cat.value,
         piatto: nuovo_piatto.value
       };
-      console.log(piatto);
+      //console.log(piatto);
 
-      var ul = document.getElementById(cat_id);
-      if (!ul) {  /* categoria senza piatti */
-        var header = document.createElement('h2');
-        header.textContent = categoria;
-        document.getElementById('piatti').appendChild(header);
-        ul = document.createElement('ul');
-        ul.id = cat_id;
-        document.getElementById('piatti').appendChild(ul);
-      }
-      console.log(ul);
-      var li = document.createElement('li');
-      li.textContent = piatto.piatto;
-      ul.appendChild(li);
-
-      socket.emit('nuovo-piatto', piatto);
+      socket.emit('nuovo-piatto-req', piatto);
     }, false);
 
-    socket.on('lista_piatti', function (data) {
-      var categs = data.categorie;
-      var select_cat = document.getElementById('categoria');
-      console.log(categs);
-      for (var i = 0; i < categs.length; i++) {
-        var opt = document.createElement('option');
-        opt.textContent = categs[i].categoria;
-        opt.value = 'cat' + categs[i]._id + ';' + categs[i].categoria;
-        select_cat.appendChild(opt);
-      }
-
-      //console.log(data);
-      var piatti = {};
-      var piattiContainer = document.getElementById('piatti'); 
-
-      for (var i = 0; i < data.piatti.length; i++) {
-        //console.log(data.piatti[i].catId);
-        if (!piatti.hasOwnProperty(data.piatti[i].catId)) {
-          piatti[data.piatti[i].catId] = document.createElement('ul');
-          piatti[data.piatti[i].catId].id = data.piatti[i].catId;
-          var header = document.createElement('h2');
-          header.textContent = data.piatti[i].categoria;
-          piattiContainer.appendChild(header);
-          piattiContainer.appendChild(piatti[data.piatti[i].catId]);
-        }
-        var li = document.createElement('li');
-        li.textContent = data.piatti[i].piatto;
-        piatti[data.piatti[i].catId].appendChild(li);
-      }
+    socket.on('piatto', function (data) {
+      console.log(data);
+      addPiatto(piatti, data);
+      console.log(piatti);
+      listPiatti(piatti, document.getElementById('piatti'));
     });
 
     socket.on('categoria', function (data) {
       console.log(data);
-      var select_cat = document.getElementById('categoria');
+      addCategoria(categorie, data);
+
+      // non ricrea la select da zero
       var opt = document.createElement('option');
       opt.textContent = data.categoria;
-      opt.value = 'cat' + data._id + ';' + data.categoria;
-      select_cat.appendChild(opt);
+      opt.value = data._id;
+      document.getElementById('categoria').appendChild(opt);
     });
   }, false);
 

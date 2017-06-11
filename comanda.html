@@ -2,14 +2,14 @@
 
 <html>
 
-<head> 
+<head>
 </head>
 
 <body>
     <h1>Comande</h1>
-    
+
 <p><a href="/">Home</a></p>
-    
+
   Scegli Tavolo: <select id="n-tavolo"><option value="0">Scegli</option></select>
 
   <div id="comanda">
@@ -23,82 +23,73 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
-  var piattiNomi = {};
-  var comanda;
-
-  var socket = io.connect('http://localhost:3000');
-
-  document.addEventListener('DOMContentLoaded', function () {
-    var n_tavoli = document.getElementById('n-tavolo');
-    for (var i = 1; i <= 10; i++) {
-      var opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = i;
-      n_tavoli.appendChild(opt);
+  function makeCategorie(categorieDB) {
+    var categorie = {};
+    for (var i = 0; i < categorieDB.length; i++) {
+      categorie[ categorieDB[i]._id ] = categorieDB[i].categoria;
     }
-    n_tavoli.addEventListener('change', function (e) {
-      console.log('change');
-      console.log(e);
-      var tavolo = e.target.value;
-      if (tavolo==0) return;
-      socket.emit('req_comanda', { tavolo: tavolo });
-    });
+    return categorie;
+  }
 
-    socket.on('comanda', function (data) {
-      if (!data.comanda) {
-        document.getElementById('comanda-n-tavolo').textContent = '';
-        document.getElementById('comanda-coperti').textContent = '';
-        document.getElementById('comanda-piatti').textContent = '';
-        return;
-      }
+  function makePiatti(piattiDB) {
+    var piatti = {};
+    for (var i = 0; i < piattiDB.length; i++) {
+      piatti[ piattiDB[i]._id ] = piattiDB[i];
+    }
+    return piatti;
+  }
 
-      console.log(data.comanda);
-      comanda = data.comanda;
-      aggiornaComanda();
-    });
-	
-    socket.emit('req_piatti');	// piatti e categorie
+  function listPiatti(piatti, container) {
+    container.textContent = '';
 
-    socket.on('lista_piatti', function (data) {
-      //console.log(data);
-      var piatti = data.piatti;
-      for (var i = 0; i < piatti.length; i++) {
-        piattiNomi[piatti[i]._id] = piatti[i].piatto;
-      }
+    var piattiUL = {};
 
-      var piatti = {};
-      var piattiContainer = document.getElementById('piatti'); 
-
-      for (var i = 0; i < data.piatti.length; i++) {
-        //console.log(data.piatti[i].catId);
-        if (!piatti.hasOwnProperty(data.piatti[i].catId)) {
-          piatti[data.piatti[i].catId] = document.createElement('ul');
-          piatti[data.piatti[i].catId].id = data.piatti[i].catId;
+    for (var id in piatti) {
+      if (piatti.hasOwnProperty(id)) {
+        //console.log(piatti[id]);
+        if (!piattiUL.hasOwnProperty(piatti[id].catId)) {
+          piattiUL[piatti[id].catId] = document.createElement('ul');
+          piattiUL[piatti[id].catId].id = piatti[id].catId;
           var header = document.createElement('h2');
-          header.textContent = data.piatti[i].categoria;
-          piattiContainer.appendChild(header);
-          piattiContainer.appendChild(piatti[data.piatti[i].catId]);
+          header.textContent = categorie[piatti[id].catId];
+          container.appendChild(header);
+          container.appendChild(piattiUL[piatti[id].catId]);
         }
-        var li = document.createElement('li');
-        var span_piatto = document.createElement('span');
-        span_piatto.textContent = data.piatti[i].piatto;
-        li.appendChild(span_piatto);
-        var btn_add = document.createElement('button');
-        btn_add.innerText = 'Aggiungi';
-        btn_add.value = data.piatti[i]._id;
-        btn_add.addEventListener('click', addHandler, false);
-        li.appendChild(btn_add);
-        piatti[data.piatti[i].catId].appendChild(li);
       }
+      var li = document.createElement('li');
 
-    });
-  }, false);
+      var span_piatto = document.createElement('span');
+      span_piatto.textContent = piatti[id].piatto;
+      li.appendChild(span_piatto);
+
+      var btn_add = document.createElement('button');
+      btn_add.innerText = '+1';
+      btn_add.value = id;
+      btn_add.addEventListener('click', addHandler, false);
+      li.appendChild(btn_add);
+
+      piattiUL[piatti[id].catId].appendChild(li);
+    }
+  }
+
+  function aggiornaComanda() {
+      document.getElementById('comanda-n-tavolo').textContent = 'Tavolo: ' + comanda.tavolo;
+      document.getElementById('comanda-coperti').textContent = 'Coperti: ' + comanda.coperti;
+      var ul = document.getElementById('comanda-piatti');
+      ul.innerText = '';
+      for (var i = 0; i < comanda.piatti.length; i++) {
+        var li = document.createElement('li');
+        li.textContent = piatti[comanda.piatti[i].piatto].piatto + ' (' + comanda.piatti[i].qty + ')';
+        ul.appendChild(li);
+      }
+  }
 
   function addHandler(e) {
     console.log(e.target.value);
     console.log(comanda);
 
-    // esiste la comanda
+    // esiste la comanda?
+
     if (comanda.tavolo > 0) {
       var piattoId = e.target.value;
       var aggiunto = false;
@@ -118,20 +109,58 @@
       socket.emit('update-comanda', { comanda: comanda });
     }
   }
+  </script>
 
+  <script>
+  var categorie = {};
+  var piatti = {};
+  var comanda;
 
-  function aggiornaComanda() {
-      document.getElementById('comanda-n-tavolo').textContent = 'Tavolo: ' + comanda.tavolo;
-      document.getElementById('comanda-coperti').textContent = 'Coperti: ' + comanda.coperti;
-      var ul = document.getElementById('comanda-piatti');
-      ul.innerText = '';
-      for (var i = 0; i < comanda.piatti.length; i++) {
-        var li = document.createElement('li');
-        li.textContent = piattiNomi[comanda.piatti[i].piatto] + ' (' + comanda.piatti[i].qty + ')';
-        ul.appendChild(li);
+  var socket = io.connect('http://localhost:3000');
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var n_tavoli = document.getElementById('n-tavolo');
+    for (var i = 1; i <= 10; i++) {
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      n_tavoli.appendChild(opt);
+    }
+    n_tavoli.addEventListener('change', function (e) {
+      var tavolo = e.target.value;
+      if (tavolo==0) return;
+      socket.emit('req_comanda', { tavolo: tavolo });
+    });
+
+    socket.on('comanda', function (data) {
+      comanda = data.comanda;
+
+      if (!data.comanda) {
+        document.getElementById('comanda-n-tavolo').textContent = '';
+        document.getElementById('comanda-coperti').textContent = '';
+        document.getElementById('comanda-piatti').textContent = '';
+        return;
       }
-  }
+      aggiornaComanda();
+    });
 
+    socket.emit('req_categorie');
+
+    socket.on('lista_categorie', function (data) {
+      //console.log(data);
+      categorie = makeCategorie(data);
+      //console.log(categorie);
+    });
+
+    socket.emit('req_piatti');
+
+    socket.on('lista_piatti', function (data) {
+      //console.log(data);
+      piatti = makePiatti(data);
+      //console.log(piatti);
+      listPiatti(piatti, document.getElementById('piatti'));
+    });
+  }, false);
   </script>
 </body>
 

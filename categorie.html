@@ -12,43 +12,68 @@
     
     <div id="categorie"></div>
 
-    ID: <input id="id-nuova-categoria" type="text">
     Categoria: <input id="nuova_categoria" type="text">
     <button id="btn-nuova-categoria">Aggiungi categoria</button>
 
   <script src="/socket.io/socket.io.js"></script>
 
   <script>
+function makeCategorie(categorieDB) {
+  var categorie = {};
+  for (var i = 0; i < categorieDB.length; i++) {
+    categorie[ categorieDB[i]._id ] = categorieDB[i].categoria;
+  }
+  return categorie;
+}
+
+function addCategoria(categorie, categoria) {
+  categorie[categoria._id] = categoria.categoria;
+  return categorie;
+}
+
+function listCategorie(categorie, container) {
+  container.textContent = '';
+  for (var id in categorie) {
+    if (categorie.hasOwnProperty(id)) {
+      var li = document.createElement('li');
+      li.textContent = categorie[id];
+      container.appendChild(li);
+    }
+  }
+}
+  </script>
+
+  <script>
   var socket = io.connect('http://localhost:3000');
+  var categorie = {};
 
   document.addEventListener('DOMContentLoaded', function () {
     socket.emit('req_categorie');
+
+    socket.on('lista_categorie', function (data) {
+      //console.log(data);
+      categorie = makeCategorie(data);
+      //console.log(categorie);
+      listCategorie(categorie, document.getElementById('categorie'));
+    });
+
+    socket.on('categoria', function (data) {
+      addCategoria(categorie, data);
+      console.log(categorie);
+      listCategorie(categorie, document.getElementById('categorie'));
+    });
 
     var btn = document.getElementById('btn-nuova-categoria');
     btn.addEventListener('click', function () {
       var nuova_categoria = document.getElementById('nuova_categoria');
       var id_nuova_categoria = document.getElementById('id-nuova-categoria');
       
-      var ul = document.getElementById('categorie');
-      var li = document.createElement('li');
-      li.textContent = nuova_categoria.value;
-      ul.appendChild(li);
+      var categoria = {
+        categoria: nuova_categoria.value
+      };
 
-      socket.emit('nuova-categoria', {
-          _id: parseInt(id_nuova_categoria.value),
-          categoria: nuova_categoria.value
-      });
+      socket.emit('nuova-categoria-req', categoria);
     }, false);
-
-    socket.on('lista_categorie', function (data) {
-      console.log(data);
-      var ul = document.getElementById('categorie');
-      for (var i = 0; i < data.length; i++) {
-        var li = document.createElement('li');
-        li.textContent = data[i].categoria;
-        ul.appendChild(li);
-      }
-    });
   }, false);
 
   </script>
