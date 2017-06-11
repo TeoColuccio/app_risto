@@ -3,38 +3,20 @@
 <html>
 
 <head> 
+  <meta charset="utf-8">
+  <title>Ristorante</title>
 </head>
 
 <body>
-  <h1> Categorie </h1>
-  
-  <ul id="categorie">
+  <ul id="menu">
+    <li><a href="/categorie">Gestione Categorie</a></li>
+    <li><a href="/piatti">Gestione Piatti</a></li>
+    <li><a href="/comanda">Gestione Comande</a></li>
   </ul>
-  
-  <input id="nuova_categoria" type="text"> </input>
-  <button id="btn-nuova-categoria">Aggiungi la nuova categoria</button>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-  
-  var socket = io.connect('http://192.168.1.5:3000');
-  
-  var btn = document.getElementById('btn-nuova-categoria');
-  btn.addEventListener('click', function () {
-    var nuova_categoria = document.getElementById('nuova_categoria');
-  });
+  <h1>Ristorante</h1>
 
-  socket.on('lista_categorie', function (data) {
-    console.log(data);
-    var ul = document.getElementById('categorie');
-    for (var i = 0; i < data.length; i++) {
-      var li = document.createElement('li');
-      li.textContent = data[i];
-      ul.appendChild(li);
-    }
-  });
-  
-  </script>
+  <p>Inserire pubblicità qui</p>
 </body>
 
 </html>

@@ -1,0 +1,112 @@
+<!doctype html>
+
+<html>
+
+<head> 
+</head>
+
+<body>
+    <h1>Piatti</h1>
+    
+<p><a href="/">Home</a></p>
+    
+    ID: <input id="id-piatto" type="text">
+    Categoria: <select id="categoria"></select>
+    Piatto: <input type="text" id="piatto">
+    <button id="btn-piatto">Aggiungi piatto</button>
+
+  <div id="piatti"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+  var socket = io.connect('http://localhost:3000');
+
+  document.addEventListener('DOMContentLoaded', function () {
+    socket.emit('req_piatti');	// piatti e categorie
+
+    var btn = document.getElementById('btn-piatto');
+    btn.addEventListener('click', function () {
+      var nuovo_piatto = document.getElementById('piatto');
+      var cat = document.getElementById('categoria');
+      var id_piatto = document.getElementById('id-piatto');
+      
+      console.log(nuovo_piatto.value);
+      console.log(cat.value);
+      console.log(id_piatto.value);
+
+      console.log(cat.value.split(';'));
+
+      var temp = cat.value.split(';');
+      var cat_id = temp[0];
+      var categoria = temp[1];
+      var piatto = {
+        _id: id_piatto.value,
+        catId: cat_id,
+        categoria: categoria,
+        piatto: nuovo_piatto.value
+      };
+      console.log(piatto);
+
+      var ul = document.getElementById(cat_id);
+      if (!ul) {  /* categoria senza piatti */
+        var header = document.createElement('h2');
+        header.textContent = categoria;
+        document.getElementById('piatti').appendChild(header);
+        ul = document.createElement('ul');
+        ul.id = cat_id;
+        document.getElementById('piatti').appendChild(ul);
+      }
+      console.log(ul);
+      var li = document.createElement('li');
+      li.textContent = piatto.piatto;
+      ul.appendChild(li);
+
+      socket.emit('nuovo-piatto', piatto);
+    }, false);
+
+    socket.on('lista_piatti', function (data) {
+      var categs = data.categorie;
+      var select_cat = document.getElementById('categoria');
+      console.log(categs);
+      for (var i = 0; i < categs.length; i++) {
+        var opt = document.createElement('option');
+        opt.textContent = categs[i].categoria;
+        opt.value = 'cat' + categs[i]._id + ';' + categs[i].categoria;
+        select_cat.appendChild(opt);
+      }
+
+      //console.log(data);
+      var piatti = {};
+      var piattiContainer = document.getElementById('piatti'); 
+
+      for (var i = 0; i < data.piatti.length; i++) {
+        //console.log(data.piatti[i].catId);
+        if (!piatti.hasOwnProperty(data.piatti[i].catId)) {
+          piatti[data.piatti[i].catId] = document.createElement('ul');
+          piatti[data.piatti[i].catId].id = data.piatti[i].catId;
+          var header = document.createElement('h2');
+          header.textContent = data.piatti[i].categoria;
+          piattiContainer.appendChild(header);
+          piattiContainer.appendChild(piatti[data.piatti[i].catId]);
+        }
+        var li = document.createElement('li');
+        li.textContent = data.piatti[i].piatto;
+        piatti[data.piatti[i].catId].appendChild(li);
+      }
+    });
+
+    socket.on('categoria', function (data) {
+      console.log(data);
+      var select_cat = document.getElementById('categoria');
+      var opt = document.createElement('option');
+      opt.textContent = data.categoria;
+      opt.value = 'cat' + data._id + ';' + data.categoria;
+      select_cat.appendChild(opt);
+    });
+  }, false);
+
+  </script>
+</body>
+
+</html>
