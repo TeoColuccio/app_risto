@@ -11,9 +11,11 @@
 
 <p><a href="/">Home</a></p>
 
-    Categoria: <select id="categoria"></select>
-    Piatto: <input type="text" id="piatto">
-    <button id="btn-piatto">Aggiungi piatto</button>
+<div class="row">
+    <div class="input-field col s3">Categoria: <select id="categoria"></select></div>
+    <div class="input-field col s7">Piatto: <input type="text" id="piatto"></div>
+    <div class="input-field col s2"><button id="btn-piatto" class="btn">Aggiungi piatto</button></div>
+</div>
 
   <div id="piatti"></div>
 
@@ -41,6 +43,7 @@ function selectCategorie(categorie, container) {
       opt.textContent = categorie[id];
       opt.value = id;
       container.appendChild(opt);
+      $('#categoria').material_select();
     }
   }
 }
@@ -80,10 +83,14 @@ function listPiatti(piatti, container) {
     piattiUL[piatti[id].catId].appendChild(li);
   }
 }
-
   </script>
 
+  <script src="/jquery-3.2.1.min.js"></script>
+  <script src="/materialize.min.js"></script>
+
   <script>
+  $('#categoria').material_select();
+
   var socket = io.connect('http://localhost:3000');
   var categorie = {};
   var piatti = {};
@@ -140,6 +147,7 @@ function listPiatti(piatti, container) {
       opt.textContent = data.categoria;
       opt.value = data._id;
       document.getElementById('categoria').appendChild(opt);
+      $('#categoria').material_select();
     });
   }, false);
 
