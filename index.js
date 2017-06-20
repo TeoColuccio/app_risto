@@ -6,7 +6,7 @@ const MongoClient = require('mongodb').MongoClient;
 
 var db;
 
-MongoClient.connect('mongodb://127.0.0.1:32768/ristorante', function (err, database) {
+MongoClient.connect('mongodb://localhost:27017/ristorante', function (err, database) {
   if (err) return console.log(err)
   db = database;
   server.listen(3000, function() {
