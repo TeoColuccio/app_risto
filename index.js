@@ -6,6 +6,10 @@ const MongoClient = require('mongodb').MongoClient;
 
 var db;
 
+app.use(express.static('css'));
+app.use(express.static('font'));
+app.use(express.static('js'));
+
 MongoClient.connect('mongodb://localhost:27017/ristorante', function (err, database) {
   if (err) return console.log(err)
   db = database;
