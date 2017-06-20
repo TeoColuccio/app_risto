@@ -2,18 +2,19 @@
 
 <html>
 
-<head> 
+<head>
+  <link rel="stylesheet" href="/materialize.min.css"  media="screen,projection"/>
 </head>
 
 <body>
     <h1>Categorie</h1>
-    
+
 <p><a href="/">Home</a></p>
-    
+
     <div id="categorie"></div>
 
-    Categoria: <input id="nuova_categoria" type="text">
-    <button id="btn-nuova-categoria">Aggiungi categoria</button>
+    <h4> Nuova Categoria: <input id="nuova_categoria" type="text"> </h4>
+    <button id="btn-nuova-categoria" class="waves-effect waves-light btn">Aggiungi categoria</button>
 
   <script src="/socket.io/socket.io.js"></script>
 
@@ -67,7 +68,7 @@ function listCategorie(categorie, container) {
     btn.addEventListener('click', function () {
       var nuova_categoria = document.getElementById('nuova_categoria');
       var id_nuova_categoria = document.getElementById('id-nuova-categoria');
-      
+
       var categoria = {
         categoria: nuova_categoria.value
       };
