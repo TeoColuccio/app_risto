@@ -7,14 +7,22 @@
 </head>
 
 <body>
-    <h1>Categorie</h1>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo">Ristorante </a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="/categorie">Gestione Categorie</a></li>
+        <li><a href="/piatti">Gestione Piatti</a></li>
+        <li><a href="/comanda">Gestione Comande</a></li>
+      </ul>
+  </nav>
 
-<p><a href="/">Home</a></p>
+  <h1 class="center-align">Categorie</h1>
 
-    <div id="categorie"></div>
+  <div id="categorie"></div>
 
-    <h4> Nuova Categoria: <input id="nuova_categoria" type="text"> </h4>
-    <button id="btn-nuova-categoria" class="waves-effect waves-light btn">Aggiungi categoria</button>
+  <h4> Nuova Categoria: <input id="nuova_categoria" type="text"> </h4>
+  <button id="btn-nuova-categoria" class="waves-effect waves-light btn">Aggiungi categoria</button>
 
   <script src="/socket.io/socket.io.js"></script>
 
@@ -24,6 +32,8 @@ function makeCategorie(categorieDB) {
   for (var i = 0; i < categorieDB.length; i++) {
     categorie[ categorieDB[i]._id ] = categorieDB[i].categoria;
   }
+  console.log(categorieDB);
+  console.log(categorie);
   return categorie;
 }
 

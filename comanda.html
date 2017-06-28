@@ -7,9 +7,17 @@
 </head>
 
 <body>
-    <h1>Comande</h1>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo">Ristorante </a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="/categorie">Gestione Categorie</a></li>
+        <li><a href="/piatti">Gestione Piatti</a></li>
+        <li><a href="/comanda">Gestione Comande</a></li>
+      </ul>
+  </nav>
 
-  <p><a href="/">Home</a></p>
+    <h1 class="center-align">Comande</h1>
 
   <div class="row">
     <div class="input-field col s3">Scegli tavolo: <select id="n-tavolo"></select></div>
@@ -22,6 +30,10 @@
 
     <div id="piatti"></div>
   </div>
+
+  <script src="/jquery-3.2.1.min.js"></script>
+  <script src="/materialize.min.js"></script>
+
 
   <script src="/socket.io/socket.io.js"></script>
 
@@ -115,6 +127,10 @@
   </script>
 
   <script>
+
+  $('#n-tavolo').material_select();
+
+
   var categorie = {};
   var piatti = {};
   var comanda;
@@ -129,7 +145,11 @@
       opt.textContent = i;
       n_tavoli.appendChild(opt);
     }
-    n_tavoli.addEventListener('change', function (e) {
+    $('#n-tavolo').material_select();
+
+    //n_tavoli.addEventListener('change', function (e) {
+    $('#n-tavolo').on('change', function (e) {
+      console.log('wewe');
       var tavolo = e.target.value;
       if (tavolo==0) return;
       socket.emit('req_comanda', { tavolo: tavolo });

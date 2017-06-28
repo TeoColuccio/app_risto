@@ -11,18 +11,18 @@ app.use(express.static('font'));
 app.use(express.static('js'));
 app.use(express.static('img'));
 
-MongoClient.connect('mongodb://localhost:27017/ristorante', function (err, database) {
+MongoClient.connect('mongodb://localhost:32769/ristorante', function (err, database) {
   if (err) return console.log(err)
   db = database;
   server.listen(3000, function() {
     console.log('Server in ascolto sulla porta 3000 ...');
   });
 
-  db.collection('categorie').remove({});
-  db.collection('piatti').remove({});
-  db.collection('comande').remove({});
+  //db.collection('categorie').remove({});
+  //db.collection('piatti').remove({});
+  //db.collection('comande').remove({});
 
-  db.collection('categorie').find().count( function (err, count) {
+  /*db.collection('categorie').find().count( function (err, count) {
     if (count === 0) {
       var categorie = [
       "antipasti",
@@ -36,9 +36,9 @@ MongoClient.connect('mongodb://localhost:27017/ristorante', function (err, datab
         db.collection('categorie').insert({ categoria: categorie[i] });
       }
     }
-  });
+  });*/
 
-  db.collection('piatti').find().count( function (err, count) {
+  /*db.collection('piatti').find().count( function (err, count) {
     if (count === 0) {
       db.collection('categorie').findOne({ categoria: 'antipasti'}, function (err, result) {
         if (err) { console.log(err); return; }
@@ -114,7 +114,8 @@ MongoClient.connect('mongodb://localhost:27017/ristorante', function (err, datab
         }
       });
     }
-  });
+  });*/
+
   db.collection('comande').find().count( function (err, count) {
     if (count === 0) {
       var comande = [
@@ -165,7 +166,7 @@ io.on('connection', function (socket) {
 
   socket.on('nuova-categoria-req', function (data) {
     db.collection('categorie').insert(data, function (err, result) {
-      //console.log(result);
+      console.log(result);
       io.emit('categoria', result.ops[0]);
     });
   });
